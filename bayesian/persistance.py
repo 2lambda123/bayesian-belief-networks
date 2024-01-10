@@ -83,6 +83,10 @@ def initialize_sample_db(conn, metadata):
     ''' % ','.join(['%s %s' % (col, type_) for col, type_ in type_specs])
     cur = conn.cursor()
     print SQL
+    cursor = conn.cursor()
+
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='samples'")
+if not cursor.fetchone():
     cur.execute(SQL)
 
 
