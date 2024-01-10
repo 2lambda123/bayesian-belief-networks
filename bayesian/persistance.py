@@ -11,7 +11,7 @@ class SampleDBNotFoundException(Exception):
     pass
 
 
-COMMIT_THRESHOLD = 1000
+COMMIT_THRESHOLD = 500
 
 # Python data type to SQLite data type mapping
 # NOTE: Technically SQLite does not support
