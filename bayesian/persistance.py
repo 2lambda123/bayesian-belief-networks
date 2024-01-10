@@ -28,7 +28,9 @@ P2S_MAPPING = {
 
 
 S2P_MAPPING = {
+    'integer': int,
     'bool': bool,
+    'integer': int,
     'varchar': unicode,
     'integer': int}
 
