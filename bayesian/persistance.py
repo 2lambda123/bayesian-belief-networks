@@ -20,7 +20,7 @@ COMMIT_THRESHOLD = 500
 # a create statement with a type of 'bool'.
 # We will use this to distinguish between
 # boolean and integer data types.
-P2S_MAPPING = {
+TYPE_MAPPING = {
     bool: 'bool',
     str: 'varchar',
     unicode: 'varchar',
@@ -132,7 +132,11 @@ class SampleDB(object):
         if initialize:
             initialize_sample_db(self.conn, self.metadata)
         self.conn.row_factory = build_row_factory(self.conn)
+        self.metadata = domains_to_metadata(domains)
         self.insert_count = 0
+        self.conn.set_trace_callback(print)
+        self.insert_count = 0
+        self.conn.execute('PRAGMA journal_mode=wal')
 
     def get_samples(self, n, **kwds):
         cur = self.conn.cursor()
@@ -183,10 +187,10 @@ class SampleDB(object):
             self.commit()
 
     def commit(self):
-        print 'Committing....'
+        print('Committing....')
         try:
             self.conn.commit()
-            self.insert_count = 1
-        except:
-            print 'Commit to db file failed...'
+            self.insert_count = 0
+        except sqlite3.Error as e:
+            print('Commit to db file failed...')
             raise
