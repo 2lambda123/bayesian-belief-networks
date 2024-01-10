@@ -108,7 +108,7 @@ def build_row_factory(conn):
 
     def row_factory(cursor, row):
         row_dict = dict()
-        for idx, desc in enumerate(cursor.description):
+        for idx, desc in enumerate(cursor.description): # Handle unsupported types gracefully
             col_name = desc[0]
             col_val = row[idx]
             try:
