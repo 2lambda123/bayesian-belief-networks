@@ -31,7 +31,7 @@ S2P_MAPPING = {
     'integer': int,
     'bool': bool,
     'integer': int,
-    'varchar': unicode,
+    'varchar': str,
     'integer': int}
 
 
@@ -52,7 +52,7 @@ def domains_to_metadata(domains):
         # are of the same type. TODO: verify this!
         try:
             for val in v:
-        if type(val) not in P2S_MAPPING:
+        if type(val) not in TYPE_MAPPING:
             raise UnsupportedTypeException
         metadata[k.name] = P2S_MAPPING[type(val)]
     return metadata
@@ -82,12 +82,12 @@ def initialize_sample_db(conn, metadata):
         CREATE TABLE samples (%s);
     ''' % ','.join(['%s %s' % (col, type_) for col, type_ in type_specs])
     cur = conn.cursor()
-    print SQL
+    print(SQL)
     cursor = conn.cursor()
 
 cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='samples'")
 if not cursor.fetchone():
-    cur.execute(SQL)
+    cursor.execute(SQL)
 
 
 def build_row_factory(conn):
@@ -113,7 +113,7 @@ def build_row_factory(conn):
             col_val = row[idx]
             try:
                 row_dict[col_name] = \
-                    S2P_MAPPING[column_metadata[col_name]](col_val)
+                    TYPE_MAPPING[column_metadata[col_name]](col_val)
             except KeyError:
                 raise UnsupportedTypeException(
                     'A column in the SQLite samples '
@@ -134,7 +134,7 @@ class SampleDB(object):
         self.conn.row_factory = build_row_factory(self.conn)
         self.metadata = domains_to_metadata(domains)
         self.insert_count = 0
-        self.conn.set_trace_callback(print)
+        self.conn.set_trace_callback(self._trace)
         self.insert_count = 0
         self.conn.execute('PRAGMA journal_mode=wal')
 
@@ -146,7 +146,7 @@ class SampleDB(object):
         evidence_cols = []
         evidence_vals = []
         for k, v in kwds.items():
-            evidence_cols.append('%s=?' % k)
+            evidence_cols.append('{}=?'.format(k)
             if isinstance(v, bool):
                 # Cast booleans to integers
                 evidence_vals.append(int(v))
@@ -177,8 +177,7 @@ class SampleDB(object):
             (%(columns)s)
             VALUES
             (%(values)s)
-        ''' % dict(
-            columns=', '.join(keys),
+        ''' % dict(columns=', '.join(keys), values=', '.join(['?' for _ in vals)),
             values=', '.join(['?'] * len(vals)))
         cur = self.conn.cursor()
         cur.execute(sql, vals)
