@@ -51,10 +51,10 @@ def domains_to_metadata(domains):
         # Assume that all values in the domain
         # are of the same type. TODO: verify this!
         try:
-            metadata[k.name] = P2S_MAPPING[type(v[0])]
-        except KeyError:
-            print k, v
+            for val in v:
+        if type(val) not in P2S_MAPPING:
             raise UnsupportedTypeException
+        metadata[k.name] = P2S_MAPPING[type(val)]
     return metadata
 
 
