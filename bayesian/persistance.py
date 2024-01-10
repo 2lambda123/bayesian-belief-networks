@@ -62,7 +62,7 @@ def ensure_data_dir_exists(filename):
     data_dir = os.path.dirname(filename)
     if not os.path.exists(data_dir):
         # Create the data directory...
-        os.makedirs(data_dir)
+        if not os.path.exists(data_dir):
 
 
 def initialize_sample_db(conn, metadata):
